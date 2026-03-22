@@ -86,23 +86,41 @@ export class UserController {
      *         application/json:
      *           schema:
      *             type: object
-     *             required:
-     *               - id
-     *               - password
      *             properties:
      *               id:
      *                 type: string
-     *                 description: Email, username, or phone
+     *                 description: "Phone Number, Email, or Username"
+     *               email:
+     *                 type: string
+     *                 description: "Optional: Login with Email"
+     *               phone:
+     *                 type: string
+     *                 description: "Optional: Login with Phone"
+     *               username:
+     *                 type: string
+     *                 description: "Optional: Login with Username"
      *               password:
      *                 type: string
+     *                 description: "Required if logging in with Password"
+     *               pin:
+     *                 type: string
+     *                 description: "Required if logging in with PIN (Phone only)"
      *     responses:
      *       200:
      *         description: Login successful
+     *       401:
+     *         description: Invalid credentials
      */
     static async login(req: Request, res: Response) {
         try {
-            const { id, password } = req.body;
-            const result = await UserService.login(id, password);
+            const { id, email, phone, username, password, pin } = req.body;
+            const identifier = id || email || phone || username;
+
+            if (!identifier) {
+                return res.status(400).json({ message: "Email, Phone, or Username is required" });
+            }
+
+            const result = await UserService.login(identifier, password, pin);
             res.json(result);
         } catch (error: any) {
             res.status(401).json({ message: error.message });

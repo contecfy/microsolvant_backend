@@ -69,15 +69,22 @@ export class UserService {
         return { user, token };
     }
 
-    static async login(id: string, password: string) {
+    static async login(id: string, password?: string, pin?: string) {
         const user = await User.findOne({ 
             $or: [{ email: id }, { username: id }, { phone: id }] 
-        }).select("+password"); // ensures password is included if it was select: false
+        }).select("+password +pin"); 
         
         if (!user) throw new Error("Invalid credentials");
 
-        const isMatch = await (user as any).comparePassword(password);
-        if (!isMatch) throw new Error("Invalid credentials");
+        if (pin) {
+            const isMatch = await (user as any).comparePin(pin);
+            if (!isMatch) throw new Error("Invalid credentials");
+        } else if (password) {
+            const isMatch = await (user as any).comparePassword(password);
+            if (!isMatch) throw new Error("Invalid credentials");
+        } else {
+            throw new Error("Password or PIN is required");
+        }
 
         const token = this.generateToken((user._id as any).toString());
         return { user, token };
