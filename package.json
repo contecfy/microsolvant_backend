@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "print-money": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build-empire": "tsc",
     "start": "node dist/server.js"
   },
   "keywords": [],
