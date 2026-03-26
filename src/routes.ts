@@ -5,6 +5,7 @@ import LoanRoutes from "./modules/loan/loan.routes";
 import CollateralRoutes from "./modules/collateral/collateral.routes";
 import RepaymentRoutes from "./modules/repayment/repayment.routes";
 import ReportRoutes from "./modules/report/report.routes";
+import ScheduleRoutes from "./modules/schedule/schedule.routes";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use("/loans", LoanRoutes);
 router.use("/collateral", CollateralRoutes);
 router.use("/repayments", RepaymentRoutes);
 router.use("/reports", ReportRoutes);
+router.use("/schedules", ScheduleRoutes);
 
 export default router;
