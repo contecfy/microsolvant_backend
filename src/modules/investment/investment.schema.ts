@@ -33,6 +33,7 @@ export interface IInvestment extends Document {
     profit: number;
 
     status: "active" | "completed";
+    company: mongoose.Types.ObjectId;
 
     createdAt: Date;
     updatedAt: Date;
@@ -71,6 +72,11 @@ const InvestmentSchema: Schema<IInvestment> = new Schema(
             type: String,
             enum: ["active", "completed"],
             default: "active",
+        },
+        company: {
+            type: Schema.Types.ObjectId,
+            ref: "Company",
+            required: true,
         },
     },
     {

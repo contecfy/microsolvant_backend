@@ -30,6 +30,7 @@ export interface ISchedule extends Document {
     expectedAmount: number;
     paidAmount: number;
     status: "pending" | "paid" | "missed" | "partially_paid";
+    company: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -57,6 +58,11 @@ const ScheduleSchema: Schema<ISchedule> = new Schema(
             type: String,
             enum: ["pending", "paid", "missed", "partially_paid"],
             default: "pending",
+        },
+        company: {
+            type: Schema.Types.ObjectId,
+            ref: "Company",
+            required: true,
         },
     },
     {

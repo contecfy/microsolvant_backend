@@ -57,6 +57,7 @@ export interface ILoan extends Document {
     isPenaltyApplied: boolean;
 
     purpose?: string;
+    company: mongoose.Types.ObjectId;
 
     createdAt: Date;
     updatedAt: Date;
@@ -141,6 +142,11 @@ const LoanSchema: Schema<ILoan> = new Schema(
         },
 
         purpose: String,
+        company: {
+            type: Schema.Types.ObjectId,
+            ref: "Company",
+            required: true,
+        },
     },
     {
         timestamps: true,

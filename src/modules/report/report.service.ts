@@ -23,7 +23,6 @@ export class ReportService {
     // real logic for generating financial summary
     static async generateFinancialSummary() {
         const Loan = mongoose.model("Loan");
-        const Repayment = mongoose.model("Repayment");
 
         const loanStats = await Loan.aggregate([
             {
@@ -31,8 +30,12 @@ export class ReportService {
                     _id: null,
                     totalLent: { $sum: "$amount" },
                     totalInterestExpected: { $sum: "$interestAmount" },
-                    totalLosses: {
-                        $sum: { $cond: [{ $eq: ["$status", "defaulted"] }, "$remainingBalance", 0] }
+                    totalRepaid: { $sum: "$totalRepaid" },
+                    totalRemaining: { $sum: "$remainingBalance" },
+                    activePrincipal: {
+                        $sum: {
+                            $cond: [{ $eq: ["$status", "ongoing"] }, "$amount", 0]
+                        }
                     },
                     ongoingCount: {
                         $sum: { $cond: [{ $eq: ["$status", "ongoing"] }, 1, 0] }
@@ -40,31 +43,46 @@ export class ReportService {
                     defaultedCount: {
                         $sum: { $cond: [{ $eq: ["$status", "defaulted"] }, 1, 0] }
                     },
+                    completedCount: {
+                        $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] }
+                    },
                     count: { $sum: 1 }
                 }
             }
         ]);
 
-        const repaymentStats = await Repayment.aggregate([
-            { $group: { _id: null, totalRepaid: { $sum: "$amount" } } }
-        ]);
+        const stats = loanStats[0] || {
+            totalLent: 0,
+            totalInterestExpected: 0,
+            totalRepaid: 0,
+            totalRemaining: 0,
+            activePrincipal: 0,
+            ongoingCount: 0,
+            defaultedCount: 0,
+            completedCount: 0,
+            count: 0
+        };
 
-        const stats = loanStats[0] || {};
-        const totalRepaid = repaymentStats[0]?.totalRepaid || 0;
-        
-        // Profit is a bit complex: for now, let's treat it as interest from repayments
-        // Simplified: (totalRepaid - totalLent) if positive, but that's not quite right
-        // Better: sum of interestAmount from completed loans or proportion of repayment
-        const totalProfit = Math.max(0, totalRepaid - stats.totalLent); 
+        // Total profit is the interest portion of what has been repaid
+        // Simplified: (totalRepaid / totalPayable) * interestAmount
+        // Since we aggregate total, we use the average ratio or total ratio
+        const totalPayable = stats.totalLent + stats.totalInterestExpected;
+        const interestRatio = totalPayable > 0 ? stats.totalInterestExpected / totalPayable : 0;
+        const totalProfit = stats.totalRepaid * interestRatio;
+
+        const collectionRate = totalPayable > 0 ? (stats.totalRepaid / totalPayable) * 100 : 0;
 
         return {
-            totalLent: stats.totalLent || 0,
-            totalRepaid: totalRepaid,
+            totalLent: stats.totalLent,
+            totalRepaid: stats.totalRepaid,
             totalProfit: totalProfit,
-            totalLosses: stats.totalLosses || 0,
-            ongoingCount: stats.ongoingCount || 0,
-            defaultedCount: stats.defaultedCount || 0,
-            totalCount: stats.count || 0,
+            activePortfolio: stats.totalRemaining,
+            activePrincipal: stats.activePrincipal,
+            collectionRate: parseFloat(collectionRate.toFixed(2)),
+            ongoingCount: stats.ongoingCount,
+            defaultedCount: stats.defaultedCount,
+            completedCount: stats.completedCount,
+            totalCount: stats.count,
             timestamp: new Date()
         };
     }

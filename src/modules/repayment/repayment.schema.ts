@@ -35,6 +35,7 @@ export interface IRepayment extends Document {
     reference?: string; // transaction ID (MTN/Airtel/etc)
 
     note?: string;
+    company: mongoose.Types.ObjectId;
 
     createdAt: Date;
     updatedAt: Date;
@@ -68,6 +69,11 @@ const RepaymentSchema: Schema<IRepayment> = new Schema(
         reference: String,
 
         note: String,
+        company: {
+            type: Schema.Types.ObjectId,
+            ref: "Company",
+            required: true,
+        },
     },
     {
         timestamps: true,

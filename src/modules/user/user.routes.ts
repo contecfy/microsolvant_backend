@@ -8,6 +8,7 @@ router.get("/", UserController.getUsers);
 router.get("/:id", UserController.getUserById);
 router.get("/:id/eligibility", protect, UserController.getEligibility);
 router.post("/", UserController.createUser);
+router.post("/register-company", UserController.registerCompany);
 router.post("/login", UserController.login);
 router.post("/logout", protect, UserController.logout);
 router.put("/:id", UserController.updateUser);

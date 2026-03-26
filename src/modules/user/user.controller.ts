@@ -186,4 +186,35 @@ export class UserController {
             res.status(500).json({ message: error.message });
         }
     }
+
+    /**
+     * @swagger
+     * /users/register-company:
+     *   post:
+     *     summary: Register a new company and its first admin
+     *     tags: [Users]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               company:
+     *                 $ref: '#/components/schemas/Company'
+     *               admin:
+     *                 $ref: '#/components/schemas/User'
+     *     responses:
+     *       201:
+     *         description: Company and Admin created
+     */
+    static async registerCompany(req: Request, res: Response) {
+        try {
+            const { company, admin } = req.body;
+            const result = await UserService.registerCompanyWithAdmin(company, admin);
+            res.status(201).json(result);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
 }

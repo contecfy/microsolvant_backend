@@ -49,6 +49,7 @@ export interface ICollateral extends Document {
     status: "secured" | "at_risk" | "seized" | "released";
 
     verified: boolean;
+    company: mongoose.Types.ObjectId;
 
     createdAt: Date;
     updatedAt: Date;
@@ -105,6 +106,11 @@ const CollateralSchema: Schema<ICollateral> = new Schema(
         verified: {
             type: Boolean,
             default: false,
+        },
+        company: {
+            type: Schema.Types.ObjectId,
+            ref: "Company",
+            required: true,
         },
     },
     {

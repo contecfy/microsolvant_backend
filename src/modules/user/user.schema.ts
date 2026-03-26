@@ -30,7 +30,7 @@
  *         walletBalance:
  *           type: number
  */
-import { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
     fullName: string;
@@ -57,6 +57,7 @@ export interface IUser extends Document {
     isActive: boolean;
 
     lastLogin?: Date;
+    company: mongoose.Types.ObjectId;
 
     comparePassword: (password: string) => Promise<boolean>;
     comparePin: (pin: string) => Promise<boolean>;
@@ -147,6 +148,11 @@ const UserSchema: Schema<IUser> = new Schema(
         },
 
         lastLogin: Date,
+        company: {
+            type: Schema.Types.ObjectId,
+            ref: "Company",
+            required: true,
+        },
     },
     {
         timestamps: true,

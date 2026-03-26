@@ -92,8 +92,30 @@ export class UserService {
         const user = await User.create(data);
         console.log("✅ User Created Successfully");
         
-        const token = this.generateToken((user._id as any).toString());
+        const token = this.generateToken((user._id as any).toString(), user.company?.toString());
         return { user, token };
+    }
+
+    static async registerCompanyWithAdmin(companyData: any, adminData: any): Promise<any> {
+        const { CompanyService } = require("../company/company.service");
+        
+        console.log("🏢 Registering Company + Admin:", companyData.name);
+        
+        // Start a manual "transaction-like" flow if no real mongo transaction is used, 
+        // but for simplicity we'll just create the company first.
+        const company = await CompanyService.create(companyData);
+        
+        adminData.company = company._id;
+        adminData.role = "admin";
+        
+        try {
+            const result = await this.register(adminData);
+            return { company, ...result };
+        } catch (error) {
+            // Cleanup company if admin creation fails
+            await CompanyService.delete(company._id);
+            throw error;
+        }
     }
 
     static async login(id: string, password?: string, pin?: string) {
@@ -113,12 +135,12 @@ export class UserService {
             throw new Error("Password or PIN is required");
         }
 
-        const token = this.generateToken((user._id as any).toString());
+        const token = this.generateToken((user._id as any).toString(), user.company?.toString());
         return { user, token };
     }
 
-    private static generateToken(userId: string) {
-        return jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
+    private static generateToken(userId: string, companyId?: string) {
+        return jwt.sign({ id: userId, companyId }, process.env.JWT_SECRET as string, {
             expiresIn: "30d",
         });
     }
