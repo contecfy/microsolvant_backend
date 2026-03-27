@@ -13,6 +13,8 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     if (req.headers.authorization && req.headers.authorization.toLowerCase().startsWith("bearer")) {
         try {
             token = req.headers.authorization.split(" ")[1];
+            // Remove any leading/trailing quotes or whitespace
+            token = token.replace(/^["']|["']$/g, "").trim();
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
 
