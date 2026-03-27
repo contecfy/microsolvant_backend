@@ -14,7 +14,8 @@ export class InvestmentController {
      */
     static async getInvestments(req: Request, res: Response) {
         try {
-            const investments = await InvestmentService.getAll();
+            const companyId = (req as any).user?.currentCompany;
+            const investments = await InvestmentService.getAll(companyId);
             res.json(investments);
         } catch (error: any) {
             res.status(500).json({ message: error.message });

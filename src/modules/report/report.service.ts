@@ -21,10 +21,13 @@ export class ReportService {
     }
 
     // real logic for generating financial summary
-    static async generateFinancialSummary() {
+    static async generateFinancialSummary(companyId: string) {
         const Loan = mongoose.model("Loan");
 
         const loanStats = await Loan.aggregate([
+            {
+                $match: { company: new mongoose.Types.ObjectId(companyId) }
+            },
             {
                 $group: {
                     _id: null,

@@ -4,6 +4,7 @@ import { User } from "../modules/user/user.service";
 
 export interface AuthRequest extends Request {
     user?: any;
+    currentCompany?: string;
 }
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -15,11 +16,29 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
 
-            req.user = await User.findById(decoded.id).select("-password -pin");
+            const user = await User.findById(decoded.id).select("-password -pin");
 
-            if (!req.user) {
+            if (!user) {
                 return res.status(401).json({ message: "Not authorized, user not found" });
             }
+
+            // Extract active company from header or token
+            const headerCompanyId = req.headers["x-company-id"] as string;
+            const contextCompanyId = headerCompanyId || decoded.companyId;
+
+            // Verify user belongs to this company
+            if (contextCompanyId) {
+                const isMember = user.companies.some(id => id.toString() === contextCompanyId);
+                if (!isMember) {
+                    return res.status(403).json({ message: "Access denied to this company" });
+                }
+                (user as any).currentCompany = contextCompanyId;
+            } else if (user.companies.length > 0) {
+                // Default to first company if none specified
+                (user as any).currentCompany = user.companies[0].toString();
+            }
+
+            req.user = user;
 
             next();
         } catch (error) {
@@ -37,5 +56,14 @@ export const adminOnly = (req: AuthRequest, res: Response, next: NextFunction) =
         next();
     } else {
         res.status(403).json({ message: "Not authorized as an admin" });
+    }
+};
+
+export const staffOnly = (req: AuthRequest, res: Response, next: NextFunction) => {
+    const staffRoles = ["admin", "loan_officer", "manager", "collector", "compliance", "super_admin"];
+    if (req.user && staffRoles.includes(req.user.role)) {
+        next();
+    } else {
+        res.status(403).json({ message: "Access denied. Staff only." });
     }
 };

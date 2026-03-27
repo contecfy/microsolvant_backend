@@ -20,7 +20,8 @@ export class ScheduleController {
      */
     static async getSchedulesByLoanId(req: Request, res: Response) {
         try {
-            const schedules = await ScheduleService.getByLoanId(req.params.loanId as string);
+            const companyId = (req as any).user?.currentCompany;
+            const schedules = await ScheduleService.getByLoanId(req.params.loanId as string, companyId);
             res.json(schedules);
         } catch (error: any) {
             res.status(500).json({ message: error.message });

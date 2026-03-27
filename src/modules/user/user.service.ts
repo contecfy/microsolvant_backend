@@ -41,8 +41,8 @@ import { Loan } from "../loan/loan.service";
 import { Collateral } from "../collateral/collateral.service";
 
 export class UserService {
-    static async getAll() {
-        return await User.find();
+    static async getAll(companyId: string) {
+        return await User.find({ companies: companyId });
     }
 
     static async getById(id: string) {
@@ -92,27 +92,36 @@ export class UserService {
         const user = await User.create(data);
         console.log("✅ User Created Successfully");
         
-        const token = this.generateToken((user._id as any).toString(), user.company?.toString());
+        // Use the first company or none if not assigned yet
+        const primaryCompany = user.companies && user.companies.length > 0 ? user.companies[0].toString() : undefined;
+        const token = this.generateToken((user._id as any).toString(), primaryCompany);
         return { user, token };
     }
 
-    static async registerCompanyWithAdmin(companyData: any, adminData: any): Promise<any> {
+    static async registerCompanyWithWorkers(companyData: any, adminData: any, workersData: any[] = []): Promise<any> {
         const { CompanyService } = require("../company/company.service");
         
-        console.log("🏢 Registering Company + Admin:", companyData.name);
+        console.log("🏢 Registering Company + Staff:", companyData.name);
         
-        // Start a manual "transaction-like" flow if no real mongo transaction is used, 
-        // but for simplicity we'll just create the company first.
         const company = await CompanyService.create(companyData);
         
-        adminData.company = company._id;
+        // Setup Admin
+        adminData.companies = [company._id];
         adminData.role = "admin";
         
         try {
-            const result = await this.register(adminData);
-            return { company, ...result };
+            const adminResult = await this.register(adminData);
+            
+            // Setup Workers
+            const workerResults = [];
+            for (const worker of workersData) {
+                worker.companies = [company._id];
+                // Roles like loan_officer, accountant, etc. should be in worker data
+                workerResults.push(await this.register(worker));
+            }
+
+            return { company, admin: adminResult, workers: workerResults };
         } catch (error) {
-            // Cleanup company if admin creation fails
             await CompanyService.delete(company._id);
             throw error;
         }
@@ -135,7 +144,8 @@ export class UserService {
             throw new Error("Password or PIN is required");
         }
 
-        const token = this.generateToken((user._id as any).toString(), user.company?.toString());
+        const primaryCompany = user.companies && user.companies.length > 0 ? user.companies[0].toString() : undefined;
+        const token = this.generateToken((user._id as any).toString(), primaryCompany);
         return { user, token };
     }
 
@@ -143,6 +153,19 @@ export class UserService {
         return jwt.sign({ id: userId, companyId }, process.env.JWT_SECRET as string, {
             expiresIn: "30d",
         });
+    }
+
+    static async searchByNationalId(nationalId: string) {
+        // Global search, but return limited fields for privacy
+        return await User.findOne({ nationalId }).select("fullName username email phone nationalId companies");
+    }
+
+    static async linkToCompany(userId: string, companyId: string) {
+        return await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { companies: companyId } }, // $addToSet prevents duplicates
+            { new: true }
+        );
     }
 
     static async getEligibility(userId: string) {

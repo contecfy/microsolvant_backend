@@ -41,7 +41,7 @@ export interface IUser extends Document {
     password: string;
     pin?: string;
 
-    role: "admin" | "investor" | "client";
+    role: "admin" | "investor" | "client" | "loan_officer" | "accountant" | "manager" | "collector" | "compliance" | "super_admin";
 
     nationalId: string;
     address?: string;
@@ -57,7 +57,7 @@ export interface IUser extends Document {
     isActive: boolean;
 
     lastLogin?: Date;
-    company: mongoose.Types.ObjectId;
+    companies: mongoose.Types.ObjectId[];
 
     comparePassword: (password: string) => Promise<boolean>;
     comparePin: (pin: string) => Promise<boolean>;
@@ -107,7 +107,7 @@ const UserSchema: Schema<IUser> = new Schema(
 
         role: {
             type: String,
-            enum: ["admin", "investor", "client"],
+            enum: ["admin", "investor", "client", "loan_officer", "accountant", "manager", "collector", "compliance", "super_admin"],
             default: "client",
         },
 
@@ -148,11 +148,12 @@ const UserSchema: Schema<IUser> = new Schema(
         },
 
         lastLogin: Date,
-        company: {
-            type: Schema.Types.ObjectId,
-            ref: "Company",
-            required: true,
-        },
+        companies: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Company",
+            },
+        ],
     },
     {
         timestamps: true,

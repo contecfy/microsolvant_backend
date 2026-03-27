@@ -58,8 +58,9 @@ RepaymentSchema.post("save", async function (doc) {
 export const Repayment = mongoose.model<IRepayment>("Repayment", RepaymentSchema);
 
 export class RepaymentService {
-    static async getAll() {
-        return await Repayment.find().populate("loan client");
+    static async getAll(companyId?: string) {
+        const query = companyId ? { company: companyId } : {};
+        return await Repayment.find(query).populate("loan client");
     }
 
     static async getById(id: string) {

@@ -14,7 +14,8 @@ export class CollateralController {
      */
     static async getCollaterals(req: Request, res: Response) {
         try {
-            const collaterals = await CollateralService.getAll();
+            const companyId = (req as any).user?.currentCompany;
+            const collaterals = await CollateralService.getAll(companyId);
             res.json(collaterals);
         } catch (error: any) {
             res.status(500).json({ message: error.message });

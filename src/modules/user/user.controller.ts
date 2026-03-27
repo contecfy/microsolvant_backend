@@ -14,7 +14,8 @@ export class UserController {
      */
     static async getUsers(req: Request, res: Response) {
         try {
-            const users = await UserService.getAll();
+            const companyId = (req as any).user?.currentCompany;
+            const users = await UserService.getAll(companyId);
             res.json(users);
         } catch (error: any) {
             res.status(500).json({ message: error.message });
@@ -210,11 +211,47 @@ export class UserController {
      */
     static async registerCompany(req: Request, res: Response) {
         try {
-            const { company, admin } = req.body;
-            const result = await UserService.registerCompanyWithAdmin(company, admin);
+            const { company, admin, workers } = req.body;
+            const result = await UserService.registerCompanyWithWorkers(company, admin, workers || []);
             res.status(201).json(result);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
+        }
+    }
+
+    /**
+     * @swagger
+     * /users/search/{nationalId}:
+     *   get:
+     *     summary: Search user globally by National ID (Staff Only)
+     *     tags: [Users]
+     */
+    static async searchGlobally(req: Request, res: Response) {
+        try {
+            const user = await UserService.searchByNationalId(req.params.nationalId as string);
+            if (!user) return res.status(404).json({ message: "No user found with this National ID" });
+            res.json(user);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    /**
+     * @swagger
+     * /users/{id}/link:
+     *   post:
+     *     summary: Link existing user to current company (Staff Only)
+     *     tags: [Users]
+     */
+    static async linkToCompany(req: Request, res: Response) {
+        try {
+            const companyId = (req as any).user?.currentCompany;
+            if (!companyId) throw new Error("No active company context");
+            
+            const user = await UserService.linkToCompany(req.params.id as string, companyId);
+            res.json(user);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
         }
     }
 }

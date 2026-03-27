@@ -14,7 +14,8 @@ export class LoanController {
      */
     static async getLoans(req: Request, res: Response) {
         try {
-            const loans = await LoanService.getAll();
+            const companyId = (req as any).user?.currentCompany;
+            const loans = await LoanService.getAll(companyId);
             res.json(loans);
         } catch (error: any) {
             res.status(500).json({ message: error.message });

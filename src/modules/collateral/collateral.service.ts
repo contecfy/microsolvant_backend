@@ -4,8 +4,9 @@ import CollateralSchema, { ICollateral } from "./collateral.schema";
 export const Collateral = mongoose.model<ICollateral>("Collateral", CollateralSchema);
 
 export class CollateralService {
-    static async getAll() {
-        return await Collateral.find().populate("loan client");
+    static async getAll(companyId?: string) {
+        const query = companyId ? { company: companyId } : {};
+        return await Collateral.find(query).populate("loan client");
     }
 
     static async getById(id: string) {

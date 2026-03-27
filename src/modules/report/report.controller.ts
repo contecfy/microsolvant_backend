@@ -84,7 +84,9 @@ export class ReportController {
      */
     static async generateSummary(req: Request, res: Response) {
         try {
-            const summary = await ReportService.generateFinancialSummary();
+            const companyId = (req as any).user?.currentCompany;
+            if (!companyId) throw new Error("Company context required");
+            const summary = await ReportService.generateFinancialSummary(companyId);
             res.json(summary);
         } catch (error: any) {
             res.status(500).json({ message: error.message });

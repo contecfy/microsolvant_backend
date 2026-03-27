@@ -14,7 +14,8 @@ export class RepaymentController {
      */
     static async getRepayments(req: Request, res: Response) {
         try {
-            const repayments = await RepaymentService.getAll();
+            const companyId = (req as any).user?.currentCompany;
+            const repayments = await RepaymentService.getAll(companyId);
             res.json(repayments);
         } catch (error: any) {
             res.status(500).json({ message: error.message });

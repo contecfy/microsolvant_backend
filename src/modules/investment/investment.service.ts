@@ -20,8 +20,9 @@ InvestmentSchema.pre("save", async function () {
 export const Investment = mongoose.model<IInvestment>("Investment", InvestmentSchema);
 
 export class InvestmentService {
-    static async getAll() {
-        return await Investment.find().populate("investor loan");
+    static async getAll(companyId?: string) {
+        const query = companyId ? { company: companyId } : {};
+        return await Investment.find(query).populate("investor loan");
     }
 
     static async getById(id: string) {

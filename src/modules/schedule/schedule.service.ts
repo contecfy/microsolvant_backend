@@ -8,8 +8,9 @@ export class ScheduleService {
         return await Schedule.create(data);
     }
 
-    static async getByLoanId(loanId: string) {
-        return await Schedule.find({ loan: loanId }).sort({ dueDate: 1 });
+    static async getByLoanId(loanId: string, companyId?: string) {
+        const query = companyId ? { loan: loanId, company: companyId } : { loan: loanId };
+        return await Schedule.find(query).sort({ dueDate: 1 });
     }
 
     static async updateStatus(id: string, status: string, paidAmount?: number) {

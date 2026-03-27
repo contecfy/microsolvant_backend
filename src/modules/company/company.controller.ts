@@ -132,4 +132,27 @@ export class CompanyController {
             res.status(500).json({ message: error.message });
         }
     }
+
+    /**
+     * @swagger
+     * /companies/public/list:
+     *   get:
+     *     summary: Get all companies for registration dropdown (Public)
+     *     tags: [Companies]
+     *     responses:
+     *       200:
+     *         description: List of companies
+     */
+    static async getPublicList(req: Request, res: Response) {
+        try {
+            const companies = await CompanyService.getAll();
+            const list = companies.map(c => ({
+                id: (c as any)._id,
+                name: (c as any).name
+            }));
+            res.json(list);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 }

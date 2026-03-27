@@ -31,8 +31,9 @@ import { ScheduleService } from "../schedule/schedule.service";
 export const Loan = mongoose.model<ILoan>("Loan", LoanSchema);
 
 export class LoanService {
-    static async getAll() {
-        return await Loan.find().populate("client");
+    static async getAll(companyId?: string) {
+        const query = companyId ? { company: companyId } : {};
+        return await Loan.find(query).populate("client");
     }
 
     static async getById(id: string) {
