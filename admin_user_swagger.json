@@ -1,0 +1,9 @@
+{
+  "fullName": "Admin User",
+  "username": "admin_rucks",
+  "email": "admin@rucksplug.com",
+  "phone": "+256000000001",
+  "password": "AdminPassword123!",
+  "role": "admin",
+  "nationalId": "ADMIN123456789"
+}

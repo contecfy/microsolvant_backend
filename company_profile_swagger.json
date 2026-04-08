@@ -1,0 +1,9 @@
+{
+  "name": "Acme Corp Ltd",
+  "registrationNumber": "REG12345678",
+  "email": "info@acme.com",
+  "phone": "+256700000000",
+  "address": "123 Business St, Kampala",
+  "interestRate": 15,
+  "website": "https://acme.com"
+}
