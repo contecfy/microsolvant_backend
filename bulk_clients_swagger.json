@@ -1,0 +1,32 @@
+[
+  {
+    "fullName": "Musa Baluku",
+    "username": "musa_baluku",
+    "email": "musa.baluku@gmail.com",
+    "phone": "+256704111222",
+    "password": "ClientPass111!",
+    "role": "client",
+    "nationalId": "CM950111222STU",
+    "companies": ["69d5feb6ab12b3bdcf24f09d"]
+  },
+  {
+    "fullName": "Grace Akello",
+    "username": "grace_akello",
+    "email": "grace.akello@outlook.com",
+    "phone": "+256705333444",
+    "password": "ClientPass444!",
+    "role": "client",
+    "nationalId": "CF930333444VWX",
+    "companies": ["69d5feb6ab12b3bdcf24f09d"]
+  },
+  {
+    "fullName": "Peter Mukasa",
+    "username": "peter_mukasa",
+    "email": "peter.mukasa@yahoo.com",
+    "phone": "+256706555666",
+    "password": "ClientPass666!",
+    "role": "client",
+    "nationalId": "CM910555666YZA",
+    "companies": ["69d5feb6ab12b3bdcf24f09d"]
+  }
+]

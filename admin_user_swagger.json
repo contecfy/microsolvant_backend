@@ -1,9 +1,9 @@
 {
-  "fullName": "Admin User",
-  "username": "admin_rucks",
-  "email": "admin@rucksplug.com",
-  "phone": "+256000000001",
-  "password": "AdminPassword123!",
+  "fullName": "Isaac Lukwago",
+  "username": "lukwago_admin",
+  "email": "isaac.lukwago@rucksplug.com",
+  "phone": "+256701234567",
+  "password": "SecureAdmin123!",
   "role": "admin",
-  "nationalId": "ADMIN123456789"
+  "nationalId": "CM900123456XYZ"
 }
