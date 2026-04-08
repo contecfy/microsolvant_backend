@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(logger);
 
 app.get("/", (req, res) => {
-    res.send("Rucks Plug API running 🚀");
+    res.send("Microsolvant API running 🚀");
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
